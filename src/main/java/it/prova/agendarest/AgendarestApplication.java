@@ -104,6 +104,15 @@ public class AgendarestApplication implements CommandLineRunner{
 			agendaServiceInstance.inserisciNuovo(agenda1);
 		}
 		
+		String descrizone2 = "Appuntamento logopedista";
+		Agenda agenda2 = agendaServiceInstance.findByDescrizione(descrizone2);
+		
+		if(agenda2==null) {
+			agenda2= new Agenda(descrizone2,LocalDateTime.of(2015, Month.JULY, 29, 20, 30, 40),
+					LocalDateTime.of(2015, Month.JULY, 29, 19, 30, 40), utenteServiceInstance.findByUsername("user"));
+			agendaServiceInstance.inserisciNuovo(agenda2);
+		}
+		
 	}
 
 }

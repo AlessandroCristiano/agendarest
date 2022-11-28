@@ -29,7 +29,7 @@ public class AgendaServiceImpl implements AgendaService{
 	}
 
 	@Override
-	public Agenda caricaSingoloElementoConUtenza(Long id) {
+	public Agenda caricaSingoloElementoConUtenza(Long id) {	
 		return repository.findSingleAgendaEager(id);
 	}
 

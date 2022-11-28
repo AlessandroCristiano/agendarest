@@ -150,6 +150,12 @@ public class UtenteDTO {
 		this.ruoliIds = ruoliIds;
 	}
 
+	public List<AgendaDTO> getAgende() {
+		return agende;
+	}
+	public void setAgende(List<AgendaDTO> agende) {
+		this.agende = agende;
+	}
 	public Utente buildUtenteModel(boolean includeIdRoles) {
 		Utente result = new Utente(this.id, this.username, this.password, this.nome, this.cognome, this.email,
 				this.dateCreated, this.stato);
@@ -159,13 +165,16 @@ public class UtenteDTO {
 		return result;
 	}
 
-	public static UtenteDTO buildUtenteDTOFromModel(Utente utenteModel) {
+	public static UtenteDTO buildUtenteDTOFromModel(Utente utenteModel, boolean includeAgende) {
 		UtenteDTO result = new UtenteDTO(utenteModel.getId(), utenteModel.getUsername(), utenteModel.getNome(),
 				utenteModel.getCognome(), utenteModel.getStato());
 
 		if (!utenteModel.getRuoli().isEmpty())
 			result.ruoliIds = utenteModel.getRuoli().stream().map(r -> r.getId()).collect(Collectors.toList())
 					.toArray(new Long[] {});
+
+		if(includeAgende)
+			result.setAgende(AgendaDTO.createAgendaDTOListFromModelList(utenteModel.getAgende(), false));
 
 		return result;
 	}

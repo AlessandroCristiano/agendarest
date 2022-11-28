@@ -93,31 +93,27 @@ public class AgendaDTO {
 		Agenda result = new Agenda(this.id, this.descrizione, this.dataOraInizio, this.dataOraFine);
 
 		if (this.utenteDTO != null) {
-			result.setUtente(this.utenteDTO.buildUtenteModel(false));
+			result.setUtente(this.utenteDTO.buildUtenteModel(true));
 		}
 		
 		return result;
 	}
 
-	public static AgendaDTO buildAgendaDTOFromModel(Agenda agendaModel) {
+	public static AgendaDTO buildAgendaDTOFromModel(Agenda agendaModel, boolean includeUtenti) {
 		AgendaDTO result = new AgendaDTO(agendaModel.getId(), agendaModel.getDescrizione(),
-				agendaModel.getDataOraInizio(), agendaModel.getDataOraFine(),
-				UtenteDTO.buildUtenteDTOFromModel(agendaModel.getUtente()));
+				agendaModel.getDataOraInizio(), agendaModel.getDataOraFine());
 
-		return result;
+		if(includeUtenti)
+		result.setUtente(UtenteDTO.buildUtenteDTOFromModel(agendaModel.getUtente(), false));
+
+	return result;
 	}
 
-	public static Set<AgendaDTO> createAgendaDTOSetFromModelSet(Set<Agenda> modelSetInput) {
+
+	public static List<AgendaDTO> createAgendaDTOListFromModelList(List<Agenda> modelSetInput, boolean includeUtenti) {
 
 		return modelSetInput.stream().map(agendaEntity -> {
-			return AgendaDTO.buildAgendaDTOFromModel(agendaEntity);
-		}).collect(Collectors.toSet());
-	}
-
-	public static List<AgendaDTO> createAgendaDTOListFromModelList(List<Agenda> modelSetInput) {
-
-		return modelSetInput.stream().map(agendaEntity -> {
-			return AgendaDTO.buildAgendaDTOFromModel(agendaEntity);
+			return AgendaDTO.buildAgendaDTOFromModel(agendaEntity, includeUtenti);
 		}).collect(Collectors.toList());
 	}
 
