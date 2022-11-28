@@ -3,9 +3,11 @@ package it.prova.agendarest.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import it.prova.agendarest.model.Agenda;
+import it.prova.agendarest.model.Utente;
 import it.prova.agendarest.repository.agenda.AgendaRepository;
 @Service
 public class AgendaServiceImpl implements AgendaService{
@@ -37,9 +39,17 @@ public class AgendaServiceImpl implements AgendaService{
 	public Agenda aggiorna(Agenda agendaInstance) {
 		return repository.save(agendaInstance);
 	}
-
+	
 	@Override
 	public Agenda inserisciNuovo(Agenda agendaInstance) {
+		return repository.save(agendaInstance);
+	}
+
+	@Override
+	public Agenda inserisciNuovoConUtente(Agenda agendaInstance, Utente utenteInSessione) {
+		
+		agendaInstance.setUtente(utenteInSessione);//inseriamo manualmente l'utente in sessione
+		
 		return repository.save(agendaInstance);
 	}
 
@@ -51,6 +61,12 @@ public class AgendaServiceImpl implements AgendaService{
 	@Override
 	public Agenda findByDescrizione(String descrizione) {
 		return repository.findByDescrizione(descrizione);
+	}
+
+	@Override
+	public List<Agenda> findByUsername() {
+		String username = SecurityContextHolder.getContext().getAuthentication().getName();
+		return repository.findByUsername(username);
 	}
 
 }

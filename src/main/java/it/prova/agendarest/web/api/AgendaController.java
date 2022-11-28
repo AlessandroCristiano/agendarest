@@ -18,7 +18,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import it.prova.agendarest.dto.AgendaDTO;
+import it.prova.agendarest.dto.UtenteDTO;
 import it.prova.agendarest.model.Agenda;
+import it.prova.agendarest.model.Ruolo;
 import it.prova.agendarest.model.Utente;
 import it.prova.agendarest.service.AgendaService;
 import it.prova.agendarest.service.UtenteService;
@@ -37,11 +39,18 @@ public class AgendaController {
 	@Autowired
 	private UtenteService utenteService;
 	
-	@GetMapping
+	@GetMapping("/allAdmin")
 	public List<AgendaDTO> getAll() {
 		// senza DTO qui hibernate dava il problema del N + 1 SELECT
 		// (probabilmente dovuto alle librerie che serializzano in JSON)
 		return AgendaDTO.createAgendaDTOListFromModelList(agendaService.listAllElementsEager(), true);
+	}
+	
+	@GetMapping
+	public List<AgendaDTO> getAgendaByUsername() {
+		// senza DTO qui hibernate dava il problema del N + 1 SELECT
+		// (probabilmente dovuto alle librerie che serializzano in JSON)
+		return AgendaDTO.createAgendaDTOListFromModelList(agendaService.findByUsername(), true);
 	}
 	
 	@GetMapping("/{id}")
@@ -70,27 +79,60 @@ public class AgendaController {
 		// non sta bene
 		if (agendaInput.getId() != null)
 			throw new IdNotNullForInsertException("Non è ammesso fornire un id per la creazione");
+		
+		String username = SecurityContextHolder.getContext().getAuthentication().getName();
+		
+		agendaInput.setUtente(UtenteDTO.buildUtenteDTOFromModel(utenteService.findByUsername(username), true));
 
 		Agenda agendaInserita = agendaService.inserisciNuovo(agendaInput.buildAgendaModel());
+		
 		return AgendaDTO.buildAgendaDTOFromModel(agendaInserita, true);
 	}
 	
 	@PutMapping("/{id}")
 	public AgendaDTO update(@Valid @RequestBody AgendaDTO agendaInput, @PathVariable(required = true) Long id) {
+		String username = SecurityContextHolder.getContext().getAuthentication().getName();
+		Utente utenteLoggato = utenteService.findByUsername(username);
+
 		Agenda agenda = agendaService.caricaSingoloElemento(id);
 
 		if (agenda == null)
-			throw new AgendaNotFoundException("Regista not found con id: " + id);
-
-		agendaInput.setId(id);
-		Agenda agendaAggiornata = agendaService.aggiorna(agendaInput.buildAgendaModel());
-		return AgendaDTO.buildAgendaDTOFromModel(agendaAggiornata, true);
+			throw new AgendaNotFoundException("Agenda not found con id: " + id);
+		
+		if (utenteLoggato.getRuoli().stream().filter(r -> r.getCodice().equals("ROLE_ADMIN")).findAny()
+				.orElse(null) != null || utenteLoggato.getId() == agenda.getUtente().getId()) {
+			
+			agendaInput.setId(id);
+			agendaInput.setUtente(UtenteDTO.buildUtenteDTOFromModel(utenteService.findByUsername(username), true));
+			Agenda agendaAggiornata = agendaService.aggiorna(agendaInput.buildAgendaModel());
+			return AgendaDTO.buildAgendaDTOFromModel(agendaAggiornata, true);
+			
+		} else {
+			throw new PermessoNegatoException("Non hai i permessi per modificare questo elemento!");
+		}
 	}
 	
 	@DeleteMapping("/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void delete(@PathVariable(required = true) Long id) {
-		agendaService.rimuovi(id);
+		
+		Agenda agenda = agendaService.caricaSingoloElemento(id);
+		
+		if (agenda == null)
+			throw new AgendaNotFoundException("Agenda not found con id: " + id);
+		
+		String username = SecurityContextHolder.getContext().getAuthentication().getName();
+		Utente utenteLoggato = utenteService.findByUsername(username);
+		
+		
+		if (utenteLoggato.getRuoli().stream().filter(r -> r.getCodice().equals("ROLE_ADMIN")).findAny()
+				.orElse(null) != null || utenteLoggato.getId() == agenda.getUtente().getId()) {
+			
+			agendaService.rimuovi(id);
+			
+		} else {
+			throw new PermessoNegatoException("Non hai i permessi per Eliminare questo elemento!");
+		}
 	}
 
 }
