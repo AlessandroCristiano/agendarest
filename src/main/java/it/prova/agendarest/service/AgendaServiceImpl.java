@@ -45,8 +45,7 @@ public class AgendaServiceImpl implements AgendaService{
 
 	@Override
 	public void rimuovi(Long idToRemove) {
-		// TODO Auto-generated method stub
-		
+		repository.deleteById(idToRemove);		
 	}
 
 	@Override

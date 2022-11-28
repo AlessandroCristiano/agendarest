@@ -155,22 +155,10 @@ public class UtenteDTO {
 				this.dateCreated, this.stato);
 		if (includeIdRoles && ruoliIds != null)
 			result.setRuoli(Arrays.asList(ruoliIds).stream().map(id -> new Ruolo(id)).collect(Collectors.toSet()));
-		return result;
-	}
-	
-	public Utente buildUtenteModelConAgende(boolean includeIdRoles, boolean includeAgende) {
-		Utente result = new Utente(this.id, this.username, this.password, this.nome, this.cognome, this.email,
-				this.dateCreated, this.stato);
-		if (includeIdRoles && ruoliIds != null)
-			result.setRuoli(Arrays.asList(ruoliIds).stream().map(id -> new Ruolo(id)).collect(Collectors.toSet()));
-//		if(includeAgende)
-//			result.setAgende(Arrays.asList(agende).stream().map(id-> new Agenda(id)).collect(Collectors.toList()));
-		
-		return result;
-	}
-	
 
-	// niente password...
+		return result;
+	}
+
 	public static UtenteDTO buildUtenteDTOFromModel(Utente utenteModel) {
 		UtenteDTO result = new UtenteDTO(utenteModel.getId(), utenteModel.getUsername(), utenteModel.getNome(),
 				utenteModel.getCognome(), utenteModel.getStato());
@@ -178,8 +166,6 @@ public class UtenteDTO {
 		if (!utenteModel.getRuoli().isEmpty())
 			result.ruoliIds = utenteModel.getRuoli().stream().map(r -> r.getId()).collect(Collectors.toList())
 					.toArray(new Long[] {});
-		
-//		result.agende = utenteModel.getAgende()
 
 		return result;
 	}

@@ -2,9 +2,11 @@ package it.prova.agendarest.dto;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -17,14 +19,14 @@ public class AgendaDTO {
 	@NotBlank(message = "{descrizione.notblank}")
 	private String descrizione;
 	
-	@NotBlank(message = "{dataorainizio.notblank}")
+	@NotNull(message = "{dataorainizio.notblank}")
 	private LocalDateTime dataOraInizio;
 	
-	@NotBlank(message = "{dataorafine.notblank}")
+	@NotNull(message = "{dataorafine.notblank}")
 	private LocalDateTime dataOraFine;
 	
 	@JsonIgnoreProperties(value = { "agende" })
-	private UtenteDTO utente;
+	private UtenteDTO utenteDTO;
 
 	public AgendaDTO() {
 		super();
@@ -44,7 +46,7 @@ public class AgendaDTO {
 		this.descrizione = descrizione;
 		this.dataOraInizio = dataOraInizio;
 		this.dataOraFine = dataOraFine;
-		this.utente = utente;
+		this.utenteDTO = utente;
 	}
 
 	public Long getId() {
@@ -80,34 +82,42 @@ public class AgendaDTO {
 	}
 
 	public UtenteDTO getUtente() {
-		return utente;
+		return utenteDTO;
 	}
 
 	public void setUtente(UtenteDTO utente) {
-		this.utente = utente;
+		this.utenteDTO = utente;
 	}
 	
 	public Agenda buildAgendaModel() {
 		Agenda result = new Agenda(this.id, this.descrizione, this.dataOraInizio, this.dataOraFine);
-		if (this.utente != null)
-			result.setUtente(this.utente.buildUtenteModelConAgende(true, true));
+
+		if (this.utenteDTO != null) {
+			result.setUtente(this.utenteDTO.buildUtenteModel(false));
+		}
+		
+		return result;
+	}
+
+	public static AgendaDTO buildAgendaDTOFromModel(Agenda agendaModel) {
+		AgendaDTO result = new AgendaDTO(agendaModel.getId(), agendaModel.getDescrizione(),
+				agendaModel.getDataOraInizio(), agendaModel.getDataOraFine(),
+				UtenteDTO.buildUtenteDTOFromModel(agendaModel.getUtente()));
 
 		return result;
 	}
-	
-	public static AgendaDTO buildAgendaDTOFromModel(Agenda agendaModel, boolean includeUtenti) {
-		AgendaDTO result = new AgendaDTO(agendaModel.getId(), agendaModel.getDescrizione(), agendaModel.getDataOraInizio(),
-				agendaModel.getDataOraFine());
 
-		if (includeUtenti)
-			result.setUtente(UtenteDTO.buildUtenteDTOFromModel(agendaModel.getUtente()));
+	public static Set<AgendaDTO> createAgendaDTOSetFromModelSet(Set<Agenda> modelSetInput) {
 
-		return result;
+		return modelSetInput.stream().map(agendaEntity -> {
+			return AgendaDTO.buildAgendaDTOFromModel(agendaEntity);
+		}).collect(Collectors.toSet());
 	}
-	
-	public static List<AgendaDTO> createAgendaDTOListFromModelList(List<Agenda> modelListInput, boolean includeUtenti) {
-		return modelListInput.stream().map(filmEntity -> {
-			return AgendaDTO.buildAgendaDTOFromModel(filmEntity, includeUtenti);
+
+	public static List<AgendaDTO> createAgendaDTOListFromModelList(List<Agenda> modelSetInput) {
+
+		return modelSetInput.stream().map(agendaEntity -> {
+			return AgendaDTO.buildAgendaDTOFromModel(agendaEntity);
 		}).collect(Collectors.toList());
 	}
 
