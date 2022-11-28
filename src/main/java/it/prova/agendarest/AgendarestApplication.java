@@ -1,5 +1,7 @@
 package it.prova.agendarest;
 
+import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,7 +90,18 @@ public class AgendarestApplication implements CommandLineRunner{
 		Agenda agenda = agendaServiceInstance.findByDescrizione(descrizone);
 		
 		if(agenda==null) {
-			
+			agenda= new Agenda(descrizone,LocalDateTime.of(2015, Month.JULY, 29, 20, 30, 40),
+					LocalDateTime.of(2015, Month.JULY, 29, 19, 30, 40), utenteServiceInstance.findByUsername("user2"));
+			agendaServiceInstance.inserisciNuovo(agenda);
+		}
+		
+		String descrizone1 = "Appuntamento medico";
+		Agenda agenda1 = agendaServiceInstance.findByDescrizione(descrizone1);
+		
+		if(agenda1==null) {
+			agenda1= new Agenda(descrizone1,LocalDateTime.of(2015, Month.JULY, 29, 20, 30, 40),
+					LocalDateTime.of(2015, Month.JULY, 29, 19, 30, 40), utenteServiceInstance.findByUsername("admin"));
+			agendaServiceInstance.inserisciNuovo(agenda1);
 		}
 		
 	}
