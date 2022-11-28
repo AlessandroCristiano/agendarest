@@ -141,6 +141,14 @@ public class Utente {
 		this.stato = stato;
 	}
 
+	public List<Agenda> getAgende() {
+		return agende;
+	}
+
+	public void setAgende(List<Agenda> agende) {
+		this.agende = agende;
+	}
+
 	public boolean isAdmin() {
 		for (Ruolo ruoloItem : ruoli) {
 			if (ruoloItem.getCodice().equals(Ruolo.ROLE_ADMIN))

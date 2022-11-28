@@ -20,5 +20,7 @@ public interface AgendaService {
 	Agenda inserisciNuovo(Agenda agendaInstance);
 
 	void rimuovi(Long idToRemove);
+	
+	Agenda findByDescrizione(String descrizione);
 
 }

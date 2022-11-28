@@ -7,8 +7,10 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import it.prova.agendarest.model.Agenda;
 import it.prova.agendarest.model.Ruolo;
 import it.prova.agendarest.model.Utente;
+import it.prova.agendarest.service.AgendaService;
 import it.prova.agendarest.service.RuoloService;
 import it.prova.agendarest.service.UtenteService;
 
@@ -20,6 +22,9 @@ public class AgendarestApplication implements CommandLineRunner{
 	
 	@Autowired
 	private UtenteService utenteServiceInstance;
+	
+	@Autowired
+	private AgendaService agendaServiceInstance;
 
 	public static void main(String[] args) {
 		SpringApplication.run(AgendarestApplication.class, args);
@@ -76,6 +81,14 @@ public class AgendarestApplication implements CommandLineRunner{
 			utenteServiceInstance.inserisciNuovo(classicUser2);
 			// l'inserimento avviene come created ma io voglio attivarlo
 			utenteServiceInstance.changeUserAbilitation(classicUser2.getId());
+		}
+		
+		
+		String descrizone = "Appuntamento pediatra";
+		Agenda agenda = agendaServiceInstance.findByDescrizione(descrizone);
+		
+		if(agenda==null) {
+			
 		}
 		
 	}

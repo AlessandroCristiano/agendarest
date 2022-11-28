@@ -1,12 +1,18 @@
 package it.prova.agendarest.dto;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import it.prova.agendarest.model.Agenda;
 import it.prova.agendarest.model.Ruolo;
 import it.prova.agendarest.model.StatoUtente;
 import it.prova.agendarest.model.Utente;
@@ -40,10 +46,12 @@ public class UtenteDTO {
 	private StatoUtente stato;
 
 	private Long[] ruoliIds;
+	
+	@JsonIgnoreProperties(value = { "utente" })
+	private List<AgendaDTO> agende = new ArrayList<>();
 
 	public UtenteDTO() {
 	}
-
 	public UtenteDTO(Long id, String username, String nome, String cognome, StatoUtente stato) {
 		super();
 		this.id = id;
@@ -51,6 +59,15 @@ public class UtenteDTO {
 		this.nome = nome;
 		this.cognome = cognome;
 		this.stato = stato;
+	}
+	public UtenteDTO(Long id, String username, String nome, String cognome, StatoUtente stato, List<AgendaDTO> agende) {
+		super();
+		this.id = id;
+		this.username = username;
+		this.nome = nome;
+		this.cognome = cognome;
+		this.stato = stato;
+		this.agende=agende;
 	}
 
 	public Long getId() {
@@ -138,9 +155,20 @@ public class UtenteDTO {
 				this.dateCreated, this.stato);
 		if (includeIdRoles && ruoliIds != null)
 			result.setRuoli(Arrays.asList(ruoliIds).stream().map(id -> new Ruolo(id)).collect(Collectors.toSet()));
-
 		return result;
 	}
+	
+	public Utente buildUtenteModelConAgende(boolean includeIdRoles, boolean includeAgende) {
+		Utente result = new Utente(this.id, this.username, this.password, this.nome, this.cognome, this.email,
+				this.dateCreated, this.stato);
+		if (includeIdRoles && ruoliIds != null)
+			result.setRuoli(Arrays.asList(ruoliIds).stream().map(id -> new Ruolo(id)).collect(Collectors.toSet()));
+//		if(includeAgende)
+//			result.setAgende(Arrays.asList(agende).stream().map(id-> new Agenda(id)).collect(Collectors.toList()));
+		
+		return result;
+	}
+	
 
 	// niente password...
 	public static UtenteDTO buildUtenteDTOFromModel(Utente utenteModel) {
@@ -150,6 +178,8 @@ public class UtenteDTO {
 		if (!utenteModel.getRuoli().isEmpty())
 			result.ruoliIds = utenteModel.getRuoli().stream().map(r -> r.getId()).collect(Collectors.toList())
 					.toArray(new Long[] {});
+		
+//		result.agende = utenteModel.getAgende()
 
 		return result;
 	}
